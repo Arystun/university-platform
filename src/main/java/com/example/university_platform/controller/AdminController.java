@@ -38,6 +38,9 @@ public class AdminController {
         List<UserEntity> users = userRepository.findAll();
         List<MessageDto> messages = messageService.getAllMessagesForAdmin(); // Метод для получения всех сообщений
 
+        logger.info("Loaded {} users and {} messages for admin dashboard.", users.size(), messages.size());
+
+
         model.addAttribute("users", users);
         model.addAttribute("messages", messages);
         model.addAttribute("pageTitle", "Admin Dashboard");
