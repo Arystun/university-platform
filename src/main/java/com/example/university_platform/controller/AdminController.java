@@ -44,6 +44,8 @@ public class AdminController {
         model.addAttribute("users", users);
         model.addAttribute("messages", messages);
         model.addAttribute("pageTitle", "Admin Dashboard");
+
+        logger.info("Returning view name: admin_dashboard");
         return "admin_dashboard"; // admin_dashboard.html
     }
 }
