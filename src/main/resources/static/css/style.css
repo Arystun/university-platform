@@ -1,0 +1,108 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+    color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+input[type="text"], input[type="password"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button, .link-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+button:hover, .link-button:hover {
+    background-color: #0056b3;
+}
+
+.link-button {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    color: #007bff; /* или любой другой цвет ссылки */
+    cursor: pointer;
+}
+.link-button:hover {
+    text-decoration: underline;
+    background: none!important;
+}
+
+
+.error-message {
+    color: red;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid red;
+    background-color: #ffebeb;
+}
+
+.success-message {
+    color: green;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid green;
+    background-color: #e6ffef;
+}
+
+nav {
+    margin-bottom: 20px;
+}
+nav a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: #007bff;
+}
+nav a:hover {
+    text-decoration: underline;
+}

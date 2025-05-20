@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle ?: 'Admin Panel'}">Admin Panel</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1 th:text="${pageTitle ?: 'Admin Dashboard'}">Admin Dashboard</h1>
+    <p sec:authorize="isAuthenticated()">
+        Welcome, <strong sec:authentication="name">User</strong>!
+        Roles: <span sec:authentication="principal.authorities">Roles</span>
+    </p>
+
+    <div id="notifications" style="border: 1px solid green; padding: 10px; margin-bottom: 15px; background-color: #e6ffe6; display: none;">
+        <h4>Notifications:</h4>
+        <ul id="notificationList"></ul>
+    </div>
+
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript" sec:authorize="isAuthenticated()">
+    /*<![CDATA[*/
+    var currentUser = /*[[${#authentication.name}]]*/ 'anonymous'; // Получаем имя текущего пользователя
+    var socket;
+
+    function connectWebSocket() {
+        // Формируем URL для WebSocket. window.location.host содержит хост и порт.
+        // window.location.protocol заменит http на ws или https на wss
+        var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        var wsUrl = protocol + '//' + window.location.host + /*[[@{/ws/notifications}]]*/ '/ws/notifications';
+
+        console.log('Attempting to connect to WebSocket at: ' + wsUrl + ' for user: ' + currentUser);
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function(event) {
+            console.log('WebSocket connection opened for user: ' + currentUser);
+            document.getElementById('notifications').style.display = 'block';
+            addNotification('WebSocket connection established.');
+        };
+
+        socket.onmessage = function(event) {
+            console.log('Message from server: ', event.data);
+            addNotification(event.data);
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket connection closed. Code: ' + event.code + ', Reason: ' + event.reason);
+            addNotification('WebSocket connection closed. Attempting to reconnect in 5 seconds...');
+            // Попытка переподключения через некоторое время
+            // setTimeout(connectWebSocket, 5000); // Раскомментируйте для авто-реконнекта
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket Error: ', error);
+            addNotification('WebSocket error occurred.');
+        };
+    }
+
+    function addNotification(message) {
+        var notificationList = document.getElementById('notificationList');
+        var listItem = document.createElement('li');
+        listItem.textContent = new Date().toLocaleTimeString() + ': ' + message;
+        notificationList.appendChild(listItem);
+    }
+
+    // Подключаемся, если пользователь аутентифицирован
+    if (currentUser !== 'anonymous') {
+         connectWebSocket();
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>
