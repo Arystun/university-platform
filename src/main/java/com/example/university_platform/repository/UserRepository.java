@@ -3,6 +3,7 @@ package com.example.university_platform.repository;
 
 import com.example.university_platform.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
