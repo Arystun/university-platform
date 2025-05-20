@@ -33,6 +33,8 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
+        logger.info("AdminController: adminDashboard method CALLED!");
+
         List<UserEntity> users = userRepository.findAll();
         List<MessageDto> messages = messageService.getAllMessagesForAdmin(); // Метод для получения всех сообщений
 
