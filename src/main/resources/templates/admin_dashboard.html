@@ -17,9 +17,55 @@
     </p>
 
     <div id="notifications" style="border: 1px solid green; padding: 10px; margin-bottom: 15px; background-color: #e6ffe6; display: none;">
-        <h4>Notifications:</h4>
+        <h4>Уведомления:</h4>
         <ul id="notificationList"></ul>
     </div>
+
+    <h2>Пользователи</h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Имя пользователя</th>
+            <th>Роли</th>
+            <th>Есть ключ?</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}"> <td th:text="${user.id}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.roles}"></td>
+            <td th:text="${user.encryptionKeyMaterial != null ? 'Yes' : 'No'}"></td>
+        </tr>
+        <tr th:if="${users == null or users.isEmpty()}">
+            <td colspan="4">No users found.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Все сообщения (просмотр админа)</h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Отправитель</th>
+            <th>Получатель</th>
+            <th>Контент (расшифрованный для админа)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="msg : ${messages}"> <td th:text="${msg.id}"></td>
+            <td th:text="${#temporals.format(msg.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${msg.senderUsername}"></td>
+            <td th:text="${msg.receiverUsername}"></td>
+            <td th:text="${msg.content}"></td>
+        </tr>
+        <tr th:if="${messages == null or messages.isEmpty()}">
+            <td colspan="5">No messages found.</td>
+        </tr>
+        </tbody>
+    </table>
 
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
