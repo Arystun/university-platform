@@ -20,6 +20,8 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
     private final UserRepository userRepository;
     private final MessageService messageService;
 
