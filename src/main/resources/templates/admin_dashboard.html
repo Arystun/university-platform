@@ -86,7 +86,8 @@
 
         socket.onopen = function(event) {
             console.log('WebSocket connection opened for user: ' + currentUser);
-            document.getElementById('notifications').style.display = 'block';
+            var notificationsDiv = document.getElementById('notifications');
+            if (notificationsDiv) notificationsDiv.style.display = 'block';
             addNotification('WebSocket connection established.');
         };
 
