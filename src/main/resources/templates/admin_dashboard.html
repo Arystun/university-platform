@@ -92,7 +92,7 @@
         };
 
         socket.onmessage = function(event) {
-            console.log('Message from server: ', event.data);
+            console.log('Message from server: ', event.data );
             addNotification(event.data);
         };
 
@@ -111,9 +111,11 @@
 
     function addNotification(message) {
         var notificationList = document.getElementById('notificationList');
-        var listItem = document.createElement('li');
-        listItem.textContent = new Date().toLocaleTimeString() + ': ' + message;
-        notificationList.appendChild(listItem);
+        if (notificationList) {
+            var listItem = document.createElement('li');
+            listItem.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            notificationList.appendChild(listItem);
+        }
     }
 
     // Подключаемся, если пользователь аутентифицирован
