@@ -57,8 +57,18 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**", "/api/**")) // Для простоты MVP отключаем CSRF для API, но в проде лучше настроить
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**")
+                        .ignoringRequestMatchers("/api/**")
+                )
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .exceptionHandling(exceptions -> exceptions
+                                .defaultAuthenticationEntryPointFor( // Для путей /api/**
+                                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), // Возвращать 401 Unauthorized
+                                        new AntPathRequestMatcher("/api/**") // Применять это для путей, начинающихся с /api/
+                                )
+                        // Для остальных путей будет использоваться стандартная логика formLogin (редирект на /login)
+                );
 
         return http.build();
     }
