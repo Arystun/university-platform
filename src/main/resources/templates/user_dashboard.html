@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h1>Welcome to Your Dashboard, <span sec:authentication="name">User</span>!</h1>
+
+    <p>This is your personal space on the University Information Platform.</p>
+
+    <h2>Available Actions:</h2>
+    <ul>
+        <li>
+            <a th:href="@{/messages}">View and Send Messages</a>
+        </li>
+    </ul>
+
+    <div id="notifications" style="border: 1px solid green; padding: 10px; margin-top: 20px; background-color: #e6ffe6; display: none;">
+        <h4>Notifications:</h4>
+        <ul id="notificationList"></ul>
+    </div>
+
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript" sec:authorize="isAuthenticated()">
+    /*<![CDATA[*/
+    var currentUser = /*[[${#authentication.name}]]*/ 'anonymous';
+    var socket; // Объявляем socket здесь, чтобы он был доступен для функций
+
+    function connectWebSocket() {
+        var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        var wsUrl = protocol + '//' + window.location.host + /*[[@{/ws/notifications}]]*/ '/ws/notifications';
+
+        console.log('UserDashboard: Attempting to connect to WebSocket at: ' + wsUrl + ' for user: ' + currentUser);
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function(event) {
+            console.log('UserDashboard: WebSocket connection opened for user: ' + currentUser);
+            var notificationsDiv = document.getElementById('notifications');
+            if (notificationsDiv) notificationsDiv.style.display = 'block';
+            addNotification('WebSocket connection established.');
+        };
+
+        socket.onmessage = function(event) {
+            var receivedMessage = event.data;
+            console.log('UserDashboard: Message from server: ', receivedMessage);
+            addNotification(receivedMessage);
+        };
+
+        socket.onclose = function(event) {
+            console.log('UserDashboard: WebSocket connection closed. Code: ' + event.code + ', Reason: ' + event.reason);
+            addNotification('WebSocket connection closed.');
+        };
+
+        socket.onerror = function(error) {
+            console.error('UserDashboard: WebSocket Error: ', error);
+            addNotification('WebSocket error occurred.');
+        };
+    }
+
+    function addNotification(message) {
+        var notificationList = document.getElementById('notificationList');
+        if (notificationList) {
+            var listItem = document.createElement('li');
+            listItem.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            notificationList.appendChild(listItem);
+        }
+    }
+
+    if (currentUser !== 'anonymous') {
+         connectWebSocket();
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

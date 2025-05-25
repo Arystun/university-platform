@@ -7,13 +7,13 @@
 <body>
 <header th:fragment="header">
     <nav>
-        <a th:href="@{/admin/dashboard}">Admin Dashboard</a> |
-        <span sec:authorize="isAuthenticated()">
+        <a th:href="@{/admin/dashboard}" sec:authorize="hasRole('ADMIN')">Admin Dashboard</a>
+        <a th:href="@{/messages}" sec:authorize="isAuthenticated()">My Messages</a> <span sec:authorize="isAuthenticated()" style="margin-left: 10px;">
                 <form th:action="@{/perform_logout}" method="post" style="display: inline;">
                     <button type="submit" class="link-button">Logout (<span sec:authentication="name">User</span>)</button>
                 </form>
             </span>
-        <span sec:authorize="!isAuthenticated()">
+        <span sec:authorize="!isAuthenticated()" style="margin-left: 10px;">
                 <a th:href="@{/login}">Login</a>
             </span>
     </nav>
