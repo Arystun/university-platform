@@ -76,8 +76,6 @@
     var socket;
 
     function connectWebSocket() {
-        // Формируем URL для WebSocket. window.location.host содержит хост и порт.
-        // window.location.protocol заменит http на ws или https на wss
         var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         var wsUrl = protocol + '//' + window.location.host + /*[[@{/ws/notifications}]]*/ '/ws/notifications';
 
@@ -98,9 +96,7 @@
 
         socket.onclose = function(event) {
             console.log('WebSocket connection closed. Code: ' + event.code + ', Reason: ' + event.reason);
-            addNotification('WebSocket connection closed. Attempting to reconnect in 5 seconds...');
-            // Попытка переподключения через некоторое время
-            // setTimeout(connectWebSocket, 5000); // Раскомментируйте для авто-реконнекта
+            addNotification('WebSocket connection closed.'); // Можно добавить логику реконнекта, если нужно
         };
 
         socket.onerror = function(error) {
@@ -122,7 +118,6 @@
     if (currentUser !== 'anonymous') {
          connectWebSocket();
     }
-
     /*]]>*/
 </script>
 </body>
