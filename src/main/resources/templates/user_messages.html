@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Messages</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .chat-container { display: flex; }
+        .user-list { width: 25%; padding-right: 15px; border-right: 1px solid #ccc; max-height: 70vh; overflow-y: auto;}
+        .message-area { width: 75%; padding-left: 15px; }
+        .message-history { border: 1px solid #eee; padding: 10px; margin-bottom:10px; height: 50vh; overflow-y: scroll; background-color: #f9f9f9;}
+        .message-history .message { margin-bottom: 8px; padding: 5px; border-radius: 4px; }
+        .message-history .sent { background-color: #dcf8c6; text-align: right; margin-left: 20%;}
+        .message-history .received { background-color: #fff; border: 1px solid #eee; margin-right: 20%;}
+        .message-form textarea { width: calc(100% - 22px); margin-bottom: 5px; }
+        .user-list-item { padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .user-list-item:hover, .user-list-item.active { background-color: #e9e9e9; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <h1>My Messages</h1>
+    <p sec:authorize="isAuthenticated()">
+        Logged in as: <strong sec:authentication="name">User</strong>
+    </p>
+
+    <div id="notifications" style="border: 1px solid green; padding: 10px; margin-bottom: 15px; background-color: #e6ffe6; display: none;">
+        <h4>Notifications:</h4>
+        <ul id="notificationList"></ul>
+    </div>
+
+    <div class="chat-container">
+        <div class="user-list">
+            <h4>Contacts</h4>
+            <ul>
+                <li th:each="contact : ${contacts}"
+                    th:classappend="${selectedContactUsername != null and contact.username == selectedContactUsername} ? 'active' : ''">
+                    <a th:href="@{/messages/with/{username}(username=${contact.username})}"
+                       th:text="${contact.username}"
+                       class="user-list-item"></a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="message-area">
+            <div th:if="${selectedContactUsername}">
+                <h4>Chat with <span th:text="${selectedContactUsername}">Selected User</span></h4>
+                <div class.message-history id="messageHistory">
+                    <div th:each="msg : ${chatMessages}" class="message"
+                         th:classappend="${msg.senderUsername == #authentication.name} ? 'sent' : 'received'">
+                        <strong th:text="${msg.senderUsername}">Sender</strong>:
+                        <span th:text="${msg.content}">Message text</span>
+                        <small th:text="${#temporals.format(msg.timestamp, 'HH:mm')}" style="display: block; font-size: 0.8em; color: grey;"></small>
+                    </div>
+                    <div th:if="${chatMessages == null or chatMessages.isEmpty()}">
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                </div>
+
+                <form id="messageForm" th:action="@{/messages/send}" method="post">
+                    <input type="hidden" name="receiverUsername" th:value="${selectedContactUsername}" />
+                    <textarea name="content" rows="3" placeholder="Type your message..."></textarea>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+            <div th:unless="${selectedContactUsername}">
+                <p>Select a user from the list to start chatting.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript" sec:authorize="isAuthenticated()">
+    /*<![CDATA[*/
+    var currentUser = /*[[${#authentication.name}]]*/ 'anonymous';
+    var selectedContact = /*[[${selectedContactUsername}]]*/ null;
+    var socket;
+
+    function scrollToBottom() {
+        var messageHistory = document.getElementById('messageHistory');
+        if (messageHistory) {
+            messageHistory.scrollTop = messageHistory.scrollHeight;
+        }
+    }
+    scrollToBottom(); // Scroll on initial load
+
+    function connectWebSocket() {
+        var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        var wsUrl = protocol + '//' + window.location.host + /*[[@{/ws/notifications}]]*/ '/ws/notifications';
+
+        console.log('Attempting to connect to WebSocket at: ' + wsUrl + ' for user: ' + currentUser);
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function(event) {
+            console.log('WebSocket connection opened for user: ' + currentUser);
+            var notificationsDiv = document.getElementById('notifications');
+            if (notificationsDiv) notificationsDiv.style.display = 'block';
+            addNotification('WebSocket connection established.');
+        };
+
+        socket.onmessage = function(event) {
+            var receivedMessage = event.data;
+            console.log('Message from server: ', receivedMessage);
+            addNotification(receivedMessage);
+
+            // Пытаемся обновить чат, если пришло уведомление о сообщении от текущего выбранного контакта
+            // Это очень упрощенная логика, в идеале сервер бы присылал само сообщение или ID
+            if (selectedContact && receivedMessage.includes("new message from " + selectedContact)) {
+                // Простой способ - перезагрузить страницу, чтобы увидеть новое сообщение
+                // Более сложный - добавить сообщение в DOM динамически
+                console.log("New message from selected contact, reloading chat or updating DOM needed.");
+                // window.location.reload(); // Можно раскомментировать для простого обновления
+                // Или можно попробовать добавить в DOM (потребует парсинга event.data или получения полного DTO)
+                // For MVP, let's assume the user might refresh or we add a simple UI update.
+            }
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket connection closed. Code: ' + event.code + ', Reason: ' + event.reason);
+            addNotification('WebSocket connection closed.');
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket Error: ', error);
+            addNotification('WebSocket error occurred.');
+        };
+    }
+
+    function addNotification(message) {
+        var notificationList = document.getElementById('notificationList');
+        if (notificationList) {
+            var listItem = document.createElement('li');
+            listItem.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            notificationList.appendChild(listItem);
+        }
+    }
+
+    if (currentUser !== 'anonymous') {
+         connectWebSocket();
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

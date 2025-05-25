@@ -33,8 +33,8 @@
 
 ## 🛠️ Используемые технологии
 
-* **Язык:** Java 24.0.1
-* **Фреймворк:** Spring Boot 3.4.5
+* **Язык:** Java 24.0.1 
+* **Фреймворк:** Spring Boot 3.4.5 
 * **Модули Spring:** Spring Web (MVC, REST), Spring Security, Spring Data JPA, Spring WebSocket
 * **База данных:** H2 Database (in-memory)
 * **Шаблонизатор:** Thymeleaf

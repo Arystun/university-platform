@@ -22,7 +22,7 @@
     </div>
 
     <h2>Пользователи</h2>
-    <table border="1">
+    <table>
         <thead>
         <tr>
             <th>ID</th>
@@ -35,7 +35,7 @@
         <tr th:each="user : ${users}"> <td th:text="${user.id}"></td>
             <td th:text="${user.username}"></td>
             <td th:text="${user.roles}"></td>
-            <td th:text="${user.encryptionKeyMaterial != null ? 'Yes' : 'No'}"></td>
+            <td th:text="${user.hasEncryptionKey ? 'Yes' : 'No'}"></td>
         </tr>
         <tr th:if="${users == null or users.isEmpty()}">
             <td colspan="4">No users found.</td>
@@ -44,7 +44,7 @@
     </table>
 
     <h2>Все сообщения (просмотр админа)</h2>
-    <table border="1">
+    <table>
         <thead>
         <tr>
             <th>ID</th>

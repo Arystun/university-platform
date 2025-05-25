@@ -2,9 +2,9 @@ package com.example.university_platform.controller;
 
 
 import com.example.university_platform.dto.MessageDto;
-import com.example.university_platform.entity.UserEntity;
-import com.example.university_platform.repository.UserRepository;
+import com.example.university_platform.dto.UserDto;
 import com.example.university_platform.service.MessageService;
+import com.example.university_platform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,12 +22,12 @@ public class AdminController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final MessageService messageService;
 
     @Autowired
-    public AdminController(UserRepository userRepository, MessageService messageService) {
-        this.userRepository = userRepository;
+    public AdminController(UserService userService, MessageService messageService) {
+        this.userService = userService;
         this.messageService = messageService;
     }
 
@@ -35,7 +35,7 @@ public class AdminController {
     public String adminDashboard(Model model) {
         logger.info("AdminController: adminDashboard method CALLED!");
 
-        List<UserEntity> users = userRepository.findAll();
+        List<UserDto> users = userService.getAllUsersForAdmin();
         List<MessageDto> messages = messageService.getAllMessagesForAdmin(); // Метод для получения всех сообщений
 
         logger.info("Loaded {} users and {} messages for admin dashboard.", users.size(), messages.size());
